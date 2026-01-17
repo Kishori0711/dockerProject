@@ -12,7 +12,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Navbar />
-
+ 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
