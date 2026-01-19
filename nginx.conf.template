@@ -9,6 +9,7 @@ http {
   sendfile on;
   keepalive_timeout 65;
 
+  # Logs to stdout/stderr (container friendly)
   access_log /dev/stdout;
   error_log  /dev/stderr warn;
 
