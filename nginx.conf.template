@@ -1,50 +1,27 @@
-worker_processes auto;
+server {
+  listen ${PORT};
+  server_name _;
 
-events { worker_connections 1024; }
+  root /usr/share/nginx/html;
+  index index.html;
 
-http {
-  include       /etc/nginx/mime.types;
-  default_type  application/octet-stream;
+  location = /healthz {
+    add_header Content-Type text/plain;
+    return 200 "ok";
+  }
 
-  sendfile on;
-  keepalive_timeout 65;
+  location = /env.js {
+    add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+    try_files $uri =404;
+  }
 
-  # Logs to stdout/stderr (container friendly)
-  access_log /dev/stdout;
-  error_log  /dev/stderr warn;
+  location ~* \.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
+    expires 30d;
+    add_header Cache-Control "public, immutable";
+    try_files $uri =404;
+  }
 
-  gzip on;
-  gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-  server {
-    listen 80;
-    server_name _;
-
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # Simple health check endpoint
-    location = /healthz {
-      add_header Content-Type text/plain;
-      return 200 "ok";
-    }
-
-    # runtime env file should not be cached
-    location = /env.js {
-      add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
-      try_files $uri =404;
-    }
-
-    # Cache static assets aggressively (adjust extensions as needed)
-    location ~* \.(?:js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
-      expires 30d;
-      add_header Cache-Control "public, immutable";
-      try_files $uri =404;
-    }
-
-    # SPA fallback
-    location / {
-      try_files $uri $uri/ /index.html;
-    }
+  location / {
+    try_files $uri $uri/ /index.html;
   }
 }
