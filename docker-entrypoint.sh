@@ -12,4 +12,7 @@ envsubst '${VITE_API_BASE_URL}' \
   < /usr/share/nginx/html/env.template.js \
   > /usr/share/nginx/html/env.js
 
+# Validate nginx config before starting
+nginx -t
+
 exec "$@"
